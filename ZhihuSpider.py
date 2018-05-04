@@ -59,25 +59,34 @@ def get_imgUrl(content):
     return imgUrls
 
 def create_author_path(localPath, author_name):
-    author_path = localPath + "/" + author_name + "/"
+    author_path = localPath + "\\" + author_name + "\\"
     if not os.path.exists(author_path):
         os.mkdir(author_path)
     return author_path
 
-def download(url, localPath):
-
-    img_req = requests.get(url)
-    if img_req.status_code == requests.codes.ok:
-        name = url.split("/")[-1]
-        with open(localPath+name,'wb') as f:
-            f.write(img_req.content)
-            print("download:", url)
-        return True
+def download(url, author_path):
+    
+    name = url.split("/")[-1]
+    img_path = author_path + name
+    
+    if not os.path.exists(img_path):
+        img_res = requests.get(url)
+        if img_res.status_code == requests.codes.ok:
+            
+            with open(img_path, 'wb') as f:
+                f.write(img_res.content)
+                print("download:", url)
+                
+            return True
+        else:
+            print("error:", url)
+            # print(img_res.status_code)
+            # print(img_res.headers)
+            # print(img_res.text)
+            return False
     else:
-        print("error:", url)
-        print(img_req.status_code)
-        return False
-
+        print("exist:", name)
+    
 if __name__ == "__main__":
 
     conf = ConfigParser()
@@ -94,7 +103,7 @@ if __name__ == "__main__":
     session = val[0]
     question_name = val[1]
 
-    localPath = get_Desktop() + "/" + question_name[0] + "/"
+    localPath = get_Desktop() + "\\" + question_name[0] + "\\"
     print(localPath)
     if not os.path.exists(localPath):
         os.mkdir(localPath)
@@ -103,10 +112,10 @@ if __name__ == "__main__":
     offset = 0
 
     while not is_end:
-        answer_req = get_answer_data(session, qid, answer_url, 5, offset)
+        answer_res = get_answer_data(session, qid, answer_url, 5, offset)
 
-        data = answer_req.json()['data']
-        is_end = answer_req.json()['paging']['is_end']
+        data = answer_res.json()['data']
+        is_end = answer_res.json()['paging']['is_end']
         offset +=5
 
         for answer in data:
@@ -117,4 +126,4 @@ if __name__ == "__main__":
                 print(imgs)
                 for img in imgs:
                     download(img, author_path)
-                    time.sleep(0.1)
+                    time.sleep(0.5)
