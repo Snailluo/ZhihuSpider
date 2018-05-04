@@ -54,6 +54,8 @@ def get_imgUrl(content):
     imgUrls.extend(png.findall(content))
     imgUrls.extend(gif.findall(content))
 
+    imgUrls = list(set(imgUrls))
+
     return imgUrls
 
 def create_author_path(localPath, author_name):
@@ -109,9 +111,10 @@ if __name__ == "__main__":
 
         for answer in data:
             imgs = get_imgUrl(answer['content'])
-            author = answer['author']
-            author_path = create_author_path(localPath, author['name'])
-            print(imgs)
-            for img in imgs:
-                download(img, author_path)
-                time.sleep(0.1)
+            if imgs:
+                author = answer['author']
+                author_path = create_author_path(localPath, author['name'])
+                print(imgs)
+                for img in imgs:
+                    download(img, author_path)
+                    time.sleep(0.1)
